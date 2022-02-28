@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { where, db, collection, query, onSnapshot } from '../firebase/config';
+import { firestoreConfig } from '../firebase/config';
 
 export const useCollection = (col, uid) => {
   const [documents, setDocuments] = useState(null);
@@ -8,8 +8,8 @@ export const useCollection = (col, uid) => {
 
   useEffect(() => {
     setIsCollectionPending(true);
-
-    const q = query(collection(db, col), where('uid', '==', uid));
+    const { db, collection, query, onSnapshot } = firestoreConfig;
+    const q = query(collection(db, col));
 
     const unsub = onSnapshot(
       q,

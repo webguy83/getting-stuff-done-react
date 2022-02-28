@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { authConfig } from '../firebase/config';
+import { authConfig, firestoreConfig } from '../firebase/config';
 import { useAuthContext } from './useAuthContext';
 
 export const useLogin = () => {
@@ -19,7 +19,15 @@ export const useLogin = () => {
     setError(null);
     try {
       const auth = authConfig.getAuth();
+
       const userCredential = await authConfig.signInWithEmailAndPassword(auth, email, password);
+
+      const { doc, updateDoc, db } = firestoreConfig;
+      const userRef = doc(db, 'users', userCredential.user.uid);
+
+      await updateDoc(userRef, {
+        online: true,
+      });
 
       if (!userCredential) {
         throw new Error('Wrong email/password.');

@@ -11,30 +11,29 @@ const authReducer = (state, action) => {
     case 'LOGOUT':
       return { ...state, user: null };
     case 'AUTH_IS_READY':
-      return { ...state, user: action.payload, authIsReady: true };
+      return { user: action.payload, authIsReady: true };
     default:
       return state;
   }
 };
 
 export const AuthContextProvider = ({ children }) => {
-  const auth = authConfig.getAuth();
   const [state, dispatch] = useReducer(authReducer, {
     user: null,
     authIsReady: false,
   });
 
   useEffect(() => {
+    const auth = authConfig.getAuth();
     const unsub = authConfig.onAuthStateChanged(auth, (user) => {
       // @ts-ignore
       dispatch({
         type: 'AUTH_IS_READY',
         payload: user,
       });
+      unsub();
     });
-
-    return () => unsub();
-  }, [auth]);
+  }, []);
 
   return <AuthContext.Provider value={{ ...state, dispatch }}>{children}</AuthContext.Provider>;
 };

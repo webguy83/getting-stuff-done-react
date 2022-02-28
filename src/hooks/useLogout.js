@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { authConfig } from '../firebase/config';
+import { authConfig, firestoreConfig } from '../firebase/config';
 import { useAuthContext } from './useAuthContext';
 
 export const useLogout = () => {
@@ -16,8 +16,17 @@ export const useLogout = () => {
 
   const logout = async () => {
     setIsPending(true);
-    const auth = authConfig.getAuth();
+    setError(null);
+
     try {
+      const auth = authConfig.getAuth();
+      const { uid } = auth.currentUser;
+      const { doc, updateDoc, db } = firestoreConfig;
+      const userRef = doc(db, 'users', uid);
+
+      await updateDoc(userRef, {
+        online: false,
+      });
       await authConfig.signOut(auth);
       dispatch({
         type: 'LOGOUT',

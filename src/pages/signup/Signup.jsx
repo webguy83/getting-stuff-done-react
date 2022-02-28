@@ -23,7 +23,6 @@ export default function Signup() {
 
     setThumbnailError('');
     setThumbnail(file);
-    console.log('Thumbnail updated');
   };
 
   const handleSubmit = (e) => {

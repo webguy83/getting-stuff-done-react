@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { authConfig, storageConfig } from '../firebase/config';
+import { authConfig, firestoreConfig, storageConfig } from '../firebase/config';
 import { useAuthContext } from './useAuthContext';
 
 export const useSignup = () => {
@@ -20,6 +20,7 @@ export const useSignup = () => {
 
     let user = null;
     let response = null;
+    let photoURL = null;
 
     authConfig
       .createUserWithEmailAndPassword(authConfig.getAuth(), email, password)
@@ -44,25 +45,34 @@ export const useSignup = () => {
             setError(err);
           },
           () => {
-            getDownloadURL(uploadTask.snapshot.ref).then((photoURL) => {
-              return authConfig.updateProfile(response.user, {
-                displayName,
-                photoURL,
+            getDownloadURL(uploadTask.snapshot.ref)
+              .then((url) => {
+                const { setDoc, doc, db } = firestoreConfig;
+                photoURL = url;
+                return setDoc(doc(db, 'users', user.uid), {
+                  online: true,
+                  displayName,
+                  photoURL,
+                });
+              })
+              .then(() => {
+                return authConfig.updateProfile(response.user, {
+                  displayName,
+                  photoURL,
+                });
+              })
+              .then(() => {
+                dispatch({
+                  type: 'LOGIN',
+                  payload: user,
+                });
+                if (!isCancelled) {
+                  setIsPending(false);
+                  setError(null);
+                }
               });
-            });
           }
         );
-      })
-      .then(() => {
-        console.log(user);
-        dispatch({
-          type: 'LOGIN',
-          payload: user,
-        });
-        if (!isCancelled) {
-          setIsPending(false);
-          setError(null);
-        }
       })
       .catch((err) => {
         if (!isCancelled) {

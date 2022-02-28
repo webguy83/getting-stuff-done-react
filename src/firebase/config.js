@@ -3,10 +3,22 @@ import { initializeApp } from 'firebase/app';
 import {
   getAuth,
   createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
   onAuthStateChanged,
   updateProfile,
+  signOut,
 } from 'firebase/auth';
-import { Timestamp } from 'firebase/firestore';
+import {
+  Timestamp,
+  setDoc,
+  doc,
+  getFirestore,
+  updateDoc,
+  where,
+  collection,
+  query,
+  onSnapshot,
+} from 'firebase/firestore';
 import { getStorage, ref, getDownloadURL, uploadBytesResumable } from 'firebase/storage';
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -23,13 +35,28 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
+const db = getFirestore();
 const storage = getStorage();
 
 const authConfig = {
   getAuth,
   onAuthStateChanged,
   createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
   updateProfile,
+  signOut,
+};
+
+const firestoreConfig = {
+  Timestamp,
+  doc,
+  setDoc,
+  db,
+  updateDoc,
+  where,
+  collection,
+  query,
+  onSnapshot,
 };
 
 const storageConfig = {
@@ -39,4 +66,4 @@ const storageConfig = {
   uploadBytesResumable,
 };
 
-export { app, authConfig, Timestamp, storageConfig };
+export { app, authConfig, firestoreConfig, storageConfig };
