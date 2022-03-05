@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { useEffect, useReducer, useState } from 'react';
-import { collection, db, addDoc, serverTimestamp, deleteDoc, doc } from '../firebase/config';
+import { firestoreConfig } from '../firebase/config';
 
 const initState = {
   document: null,
@@ -37,7 +37,10 @@ export const useFirestore = (col) => {
     dispatch({ type: 'IS_PENDING' });
 
     try {
-      const addedDoc = await addDoc(collection(db, col), { ...doc, createdAt: serverTimestamp() });
+      const addedDoc = await firestoreConfig.addDoc(
+        firestoreConfig.collection(firestoreConfig.db, col),
+        { ...doc, createdAt: firestoreConfig.serverTimestamp() }
+      );
       dispatchIfNoCancelled({ type: 'ADDED_DOCUMENT', payload: addedDoc });
     } catch (err) {
       dispatchIfNoCancelled({ type: 'ERROR', payload: err.message });
@@ -47,7 +50,7 @@ export const useFirestore = (col) => {
     dispatch({ type: 'IS_PENDING' });
 
     try {
-      await deleteDoc(doc(db, col, id));
+      await firestoreConfig.deleteDoc(firestoreConfig.doc(firestoreConfig.db, col, id));
       dispatchIfNoCancelled({ type: 'DELETE_DOCUMENT' });
     } catch (err) {
       dispatchIfNoCancelled({ type: 'ERROR', payload: err.message });

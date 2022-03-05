@@ -2,6 +2,10 @@ import { useEffect, useState } from 'react';
 import './Create.css';
 import Select from 'react-select';
 import { useCollection } from 'hooks/useCollection';
+import { useAuthContext } from 'hooks/useAuthContext';
+import { firestoreConfig } from '../../firebase/config';
+import { useNavigate } from 'react-router-dom';
+import { useFirestore } from 'hooks/useFirestore';
 
 const categories = [
   { value: 'development', label: 'Development' },
@@ -17,6 +21,11 @@ export default function Create() {
   const [category, setCategory] = useState('');
   const [users, setUsers] = useState([]);
   const [assignUsers, setAssignUsers] = useState([]);
+  const [formError, setFormError] = useState(null);
+  const { addDocument, response } = useFirestore('projects');
+  const navigate = useNavigate();
+
+  const { user } = useAuthContext();
 
   const { documents } = useCollection('users');
 
@@ -32,9 +41,51 @@ export default function Create() {
     }
   }, [documents]);
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
+    const { Timestamp } = firestoreConfig;
     e.preventDefault();
-    console.log(name, details, dueDate, category, assignUsers);
+    setFormError(null);
+
+    if (!category) {
+      return setFormError('Sorry no category');
+    }
+
+    if (assignUsers.length < 1) {
+      return setFormError('Sorry no users');
+    }
+
+    const createdBy = {
+      displayName: user.displayName,
+      photoURL: user.photoURL,
+      id: user.uid,
+    };
+
+    const assignedUsersList = assignUsers.map((u) => {
+      return {
+        displayName: u.displayName,
+        photoURL: u.photoURL,
+        id: u.id,
+      };
+    });
+
+    const project = {
+      name,
+      details,
+      category,
+      dueDate: Timestamp.fromDate(new Date(dueDate)),
+      comments: [],
+      createdBy,
+      assignedUsersList,
+    };
+
+    try {
+      await addDocument(project);
+      if (!response.error) {
+        navigate('/');
+      }
+    } catch (err) {
+      setFormError(err.message);
+    }
   }
   return (
     <div className='create-form'>
@@ -74,6 +125,7 @@ export default function Create() {
           />
         </label>
         <button className='btn'>Add Project</button>
+        {formError && <p className='error'>{formError}</p>}
       </form>
     </div>
   );

@@ -10,6 +10,7 @@ import {
 } from 'firebase/auth';
 import {
   Timestamp,
+  serverTimestamp,
   setDoc,
   doc,
   getFirestore,
@@ -18,6 +19,7 @@ import {
   collection,
   query,
   onSnapshot,
+  addDoc,
 } from 'firebase/firestore';
 import { getStorage, ref, getDownloadURL, uploadBytesResumable } from 'firebase/storage';
 // TODO: Add SDKs for Firebase products that you want to use
@@ -49,8 +51,10 @@ const authConfig = {
 
 const firestoreConfig = {
   Timestamp,
+  serverTimestamp,
   doc,
   setDoc,
+  addDoc,
   db,
   updateDoc,
   where,
