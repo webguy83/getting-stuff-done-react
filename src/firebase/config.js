@@ -20,6 +20,7 @@ import {
   query,
   onSnapshot,
   addDoc,
+  deleteDoc,
 } from 'firebase/firestore';
 import { getStorage, ref, getDownloadURL, uploadBytesResumable } from 'firebase/storage';
 // TODO: Add SDKs for Firebase products that you want to use
@@ -61,6 +62,7 @@ const firestoreConfig = {
   collection,
   query,
   onSnapshot,
+  deleteDoc,
 };
 
 const storageConfig = {
